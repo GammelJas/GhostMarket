@@ -1,10 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-  <!-- TAB ICON / FAVICON -->
-<link rel="icon" type="image/png" sizes="32x32" href="img/skull.png">
-<link rel="icon" type="image/png" sizes="16x16" href="img/skull.png">
-<link rel="apple-touch-icon" href="img/skull.png">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -30,13 +25,13 @@
 </head>
 
 <body>
-  <!-- Film watermark (click area toggles visibility) -->
-  <div class="ghostmark-toggle" onclick="toggleGhostmark()">
-    <div class="ghostmark-watermark">
-      ©Haumann Studio<br>
-      FILM PROP — FAKE FAKE FAKE
-    </div>
+<div class="ghostmark-toggle">
+  <div class="ghostmark-watermark">
+    ©Haumann Studio<br>
+    FILM PROP — FAKE FAKE FAKE
   </div>
+</div>
+
 
   <script>
     function toggleGhostmark() {
@@ -251,5 +246,46 @@ data-text=' ██████╗ ██╗  ██╗ ██████╗ █
       }[m]));
     }
   </script>
+
+<!-- GHOSTMARK — persistent toggle (paste right before </body>) -->
+<style>
+  /* Invisible click area (hitbox) */
+  .ghostmark-toggle{
+    position: fixed;
+    bottom: 12px;
+    right: 14px;
+    padding: 26px 120px;     /* adjust hitbox size if needed */
+    background: rgba(0,0,0,0.01);
+    cursor: pointer;
+    z-index: 9999;
+  }
+
+  /* Hide watermark when toggled off */
+  body.ghostmark-hidden .ghostmark-watermark{
+    display: none;
+  }
+</style>
+
+<script>
+(function () {
+  const KEY = "ghostmark_hidden";
+  const toggle = document.querySelector(".ghostmark-toggle");
+  if (!toggle) return;
+
+  // Restore state on load
+  if (localStorage.getItem(KEY) === "true") {
+    document.body.classList.add("ghostmark-hidden");
+  }
+
+  // Toggle + persist
+  toggle.addEventListener("click", () => {
+    const hidden = document.body.classList.toggle("ghostmark-hidden");
+    localStorage.setItem(KEY, hidden ? "true" : "false");
+  });
+})();
+</script>
+
+
+
 </body>
 </html>

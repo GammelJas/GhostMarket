@@ -315,7 +315,7 @@
 
 <body>
   <!-- Film watermark (click area toggles visibility) -->
-  <div class="ghostmark-toggle" onclick="toggleGhostmark()">
+  <div class="ghostmark-toggle">
     <div class="ghostmark-watermark">
       ©Haumann Studio<br>
       FILM PROP — FAKE FAKE FAKE
@@ -326,6 +326,22 @@
     function toggleGhostmark() {
       document.body.classList.toggle("ghostmark-hidden");
     }
+    (function () {
+      const KEY = "ghostmark_hidden";
+      const toggle = document.querySelector(".ghostmark-toggle");
+      if (!toggle) return;
+
+      // Restore state on load
+      if (localStorage.getItem(KEY) === "true") {
+        document.body.classList.add("ghostmark-hidden");
+      }
+
+      // Click to toggle + persist
+      toggle.addEventListener("click", () => {
+        const hidden = document.body.classList.toggle("ghostmark-hidden");
+        localStorage.setItem(KEY, hidden ? "true" : "false");
+      });
+    })();
   </script>
 
   <div class="page">
@@ -938,5 +954,13 @@
       </script>
     </main>
   </div>
+
+<style>
+  /* Hide watermark when toggled off */
+  body.ghostmark-hidden .ghostmark-watermark {
+    display: none;
+  }
+</style>
+
 </body>
 </html>
