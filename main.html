@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+    <!-- TAB ICON / FAVICON -->
+<link rel="icon" type="image/png" sizes="32x32" href="img/skull.png">
+<link rel="icon" type="image/png" sizes="16x16" href="img/skull.png">
+<link rel="apple-touch-icon" href="img/skull.png">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -132,6 +137,181 @@
     }
   </style>
 </head>
+<!-- ===============================
+     GHOSTMARKET — LOGOUT OVERLAY
+     Paste into: main.html + weapons.html + show.html (right before </body>)
+================================ -->
+<div id="gmLogoutOverlay" class="gm-logout-overlay" aria-hidden="true">
+  <div class="gm-logout-wrap" role="dialog" aria-label="Logging out">
+    <div class="gm-logout-head">
+      <div class="gm-logout-titleBlock">
+        <div class="gm-logout-brand">GHOSTMARKET</div>
+        <div class="gm-logout-sub">SECURE SIGN-OFF // NODE SHUTDOWN</div>
+      </div>
+
+      <div class="gm-logout-status" aria-live="polite">SECURING SESSION…</div>
+    </div>
+
+    <div class="gm-logout-body">
+      <div class="gm-logout-ring" aria-hidden="true">
+        <div class="gm-logout-ringCore"></div>
+        <div class="gm-logout-ringDot"></div>
+      </div>
+
+      <div class="gm-logout-terminal" aria-label="Shutdown log">
+        <div class="gm-logout-log" role="log" aria-live="polite"></div>
+      </div>
+    </div>
+
+    <div class="gm-logout-foot">
+      DO NOT INTERRUPT // LINK DROPPING // GOING OFFLINE
+    </div>
+  </div>
+</div>
+<script>
+/* ===============================
+   GHOSTMARKET — LOGOUT SEQUENCE
+   Paste into: main.html + weapons.html + show.html
+================================ */
+(function(){
+  function qs(sel){ return document.querySelector(sel); }
+
+  function clearGhostMarketStorage(){
+    try{
+      const kill = [];
+      for (let i = 0; i < localStorage.length; i++){
+        const k = localStorage.key(i);
+        if (!k) continue;
+        if (k.startsWith("gm_")) kill.push(k);
+      }
+      kill.forEach(k => localStorage.removeItem(k));
+
+      // extra aliases used in your pages
+      localStorage.removeItem("gmSessionId");
+      localStorage.removeItem("gm_session_id");
+      localStorage.removeItem("gm_session");
+    }catch(e){}
+
+    try{ sessionStorage.clear(); }catch(e){}
+  }
+
+  function typeLine(logEl, text, msPerChar, done){
+    const row = document.createElement("div");
+    row.className = "gm-logout-line";
+
+    const caret = document.createElement("span");
+    caret.className = "gm-logout-caret";
+    caret.textContent = "▌";
+
+    logEl.appendChild(row);
+
+    let i = 0;
+    (function tick(){
+      i++;
+      row.textContent = text.slice(0, i);
+
+      logEl.scrollTop = logEl.scrollHeight;
+
+      if (i < text.length){
+        setTimeout(tick, msPerChar);
+      } else {
+        row.appendChild(caret);
+        setTimeout(() => {
+          caret.remove();
+          done && done();
+        }, 90);
+      }
+    })();
+  }
+
+  function runLogoutSequence(redirectTo){
+    const overlay = document.getElementById("gmLogoutOverlay");
+    if (!overlay){
+      // fallback: if you forgot the HTML, just logout normally
+      clearGhostMarketStorage();
+      window.location.href = redirectTo || "index.html";
+      return;
+    }
+
+    const logEl = overlay.querySelector(".gm-logout-log");
+    const statusEl = overlay.querySelector(".gm-logout-status");
+
+    // reset
+    overlay.classList.remove("done");
+    overlay.classList.add("show");
+    overlay.setAttribute("aria-hidden","false");
+    document.body.classList.add("gm-logout-lock");
+    if (logEl) logEl.innerHTML = "";
+    if (statusEl) statusEl.textContent = "SECURING SESSION…";
+
+    const totalMs = 4000 + Math.floor(Math.random() * 4001); // 4–8 seconds
+    const start = Date.now();
+
+    const lines = [
+      ">> INIT: secure sign-off protocol",
+      ">> HANDSHAKE: tunnel closing…",
+      ">> TOKEN: revoked / session invalidated",
+      ">> CACHE: scrubbing local fragments",
+      ">> QUEUE: target feed sealed",
+      ">> MARKET: listings stream disconnected",
+      ">> TRACE: obfuscation pass",
+      ">> ROUTE: dropped / node isolating",
+      ">> STATUS: OFFLINE"
+    ];
+
+    const jitterChar = () => 18 + Math.floor(Math.random() * 34); // per-char speed
+    const jitterGap  = () => 140 + Math.floor(Math.random() * 260);
+
+    let idx = 0;
+
+    function finish(){
+      overlay.classList.add("done");
+      if (statusEl) statusEl.textContent = "OFFLINE // REDIRECTING…";
+
+      setTimeout(() => {
+        clearGhostMarketStorage();
+        window.location.href = redirectTo || "index.html";
+      }, 650);
+    }
+
+    function next(){
+      if (!logEl) return finish();
+
+      if (idx >= lines.length){
+        return finish();
+      }
+
+      const text = lines[idx++];
+      typeLine(logEl, text, jitterChar(), () => setTimeout(next, jitterGap()));
+    }
+
+    next();
+
+    // hard-stop so it always completes within 4–8 sec
+    setTimeout(() => {
+      if (overlay.classList.contains("show")) finish();
+    }, Math.max(0, totalMs - (Date.now() - start)));
+  }
+
+  function hookLogoutLinks(){
+    const links = Array.from(document.querySelectorAll('a[data-gm-logout]'));
+    links.forEach(a => {
+      if (a.dataset.gmLogoutBound) return;
+      a.dataset.gmLogoutBound = "1";
+
+      a.addEventListener("click", (e) => {
+        e.preventDefault();
+        runLogoutSequence(a.getAttribute("href") || "index.html");
+      });
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", hookLogoutLinks);
+
+  // optional manual trigger: window.gmLogout()
+  window.gmLogout = () => runLogoutSequence("index.html");
+})();
+</script>
 
 <body>
   <!-- Film watermark (click area toggles visibility) -->
@@ -160,7 +340,7 @@
         <nav class="navLinks">
           <a href="main.html">Roulette</a>
           <a href="weapons.html">Weapons</a>
-          <a href="index.html" style="color: rgb(255, 80, 80); font-weight: 900; box-shadow: inset 0 0 18px rgba(0,0,0,.70), 0 0 0 1px rgba(255, 50, 50, .40), 0 0 22px rgba(255, 50, 50, .15);">Log Out</a>
+          <a href="index.html" data-gm-logout style="color: rgb(255, 80, 80); font-weight: 900; box-shadow: inset 0 0 18px rgba(0,0,0,.70), 0 0 0 1px rgba(255, 50, 50, .40), 0 0 22px rgba(255, 50, 50, .15);">Log Out</a>
         </nav>
       </div>
     </header>
@@ -297,7 +477,7 @@
         function enforceLogin(){
           const sid = getSessionId();
           if (!sid){
-            window.location.href = "login.html";
+            window.location.href = "index.html";
             return null;
           }
           return sid;
@@ -616,7 +796,7 @@
 
           if (state.rank <= 0){
             LS.setItem(K.rank, "0");
-            window.location.href = "login.html";
+            window.location.href = "index.html";
             return;
           }
 
@@ -760,4 +940,3 @@
   </div>
 </body>
 </html>
-
