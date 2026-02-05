@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>GhostMarket — Weapons</title>
+
+  <link rel="stylesheet" href="weapons.css" />
+
+  <!-- Keep the same visible watermark style you already use (yellow + bigger) -->
+  <style>
+    .ghostmark-watermark {
+      position: fixed;
+      bottom: 12px;
+      right: 14px;
+      font-family: monospace;
+      font-size: 20px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgb(217, 255, 1);
+      pointer-events: none;
+      z-index: 9999;
+      text-align: right;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Film watermark (click area toggles visibility) -->
+  <div class="ghostmark-toggle" onclick="toggleGhostmark()">
+    <div class="ghostmark-watermark">
+      ©Haumann Studio<br>
+      FILM PROP — FAKE FAKE FAKE
+    </div>
+  </div>
+
+  <script>
+    function toggleGhostmark() {
+      document.body.classList.toggle("ghostmark-hidden");
+    }
+  </script>
+
+  <div class="page">
+
+    <header class="topbar">
+      <div class="topbarInner">
+        <div class="brand">
+          <div class="brandTitle">GHOSTMARKET</div>
+          <div class="brandSub">LISTINGS // MARKET GRID</div>
+        </div>
+
+        <nav class="navLinks">
+          <a href="main.html">Roulette</a>
+          <a href="weapons.html">Weapons</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="heroPanel" id="market">
+        <div class="heroStack">
+          <div>
+            <h1 class="heroTitle">Listings</h1>
+            <p class="heroHint" id="resultHint">Loading data…</p>
+          </div>
+
+          <div class="searchRow">
+            <input id="q" type="search" placeholder="Search listings..." autocomplete="off" />
+            <select id="sort">
+              <option value="default">Sort: Default</option>
+              <option value="price_asc">Price: Low → High</option>
+              <option value="price_desc">Price: High → Low</option>
+              <option value="name_asc">Name: A → Z</option>
+              <option value="name_desc">Name: Z → A</option>
+            </select>
+            <button id="resetBtn" type="button" class="btnGhost">Reset</button>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div id="marketGrid" class="marketGrid" aria-label="Weapon market grid"></div>
+
+        <div id="listStatus" class="heroHint" style="margin-top:12px; text-align:center;">
+          Loading…
+        </div>
+
+        <div id="sentinel" style="height:1px;"></div>
+      </section>
+
+      <footer class="footer">
+        GHOSTMARKET // INTERNAL UI MOCKUP
+      </footer>
+    </main>
+
+    <!-- ✅ YOUR FILE IS IN ROOT: ./våben_data.js (not data/...) -->
+    <script
+      src="./våben_data.js"
+      onload="window.__DATASET_OK__=true"
+      onerror="window.__DATASET_ERR__=true">
+    </script>
+
+    <script>
+      const $ = (sel) => document.querySelector(sel);
+
+      const gridEl = $("#marketGrid");
+      const sentinelEl = $("#sentinel");
+      const statusEl = $("#listStatus");
+      const hintEl = $("#resultHint");
+
+      const qEl = $("#q");
+      const sortEl = $("#sort");
+      const resetBtn = $("#resetBtn");
+
+      const PAGE_SIZE = 24;
+
+      let allData = [];
+      let working = [];
+      let renderedCount = 0;
+
+      const PLACEHOLDER_IMG =
+        "data:image/svg+xml;charset=utf-8," +
+        encodeURIComponent(`
+          <svg xmlns="http://www.w3.org/2000/svg" width="800" height="800">
+            <defs>
+              <linearGradient id="g" x1="0" x2="1">
+                <stop offset="0" stop-color="#00120e"/>
+                <stop offset="1" stop-color="#090013"/>
+              </linearGradient>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#g)"/>
+            <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle"
+              font-family="Courier New, monospace" font-size="28" fill="#00ffcc" opacity="0.8">
+              IMAGE NOT FOUND
+            </text>
+          </svg>
+        `);
+
+      function formatKr(n){
+        const num = Number(n || 0);
+        // Keep the same output style as before (so the look remains identical)
+        return num.toLocaleString("da-DK") + " KR";
+      }
+
+      function safeText(x){
+        return String(x ?? "").replace(/[&<>"']/g, (m) => ({
+          "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+        }[m]));
+      }
+
+      function getData(){
+        // ✅ Your file sets: window.vaaben = vaaben;
+        const candidates = [
+          window.vaaben,
+          window["vaaben"],
+
+          // extra aliases (optional)
+          window.våben_data,
+          window["våben_data"],
+          window.vaaben_data,
+          window["vaaben_data"],
+          window.weaponsData,
+          window.weapons,
+          window.WEAPONS,
+          window.weapon_data
+        ];
+
+        const found = candidates.find(v => Array.isArray(v) && v.length);
+        if (found) return found;
+
+        if (window.__DATASET_ERR__) {
+          console.error("Dataset script failed to load (404 / wrong path). Check: <script src=\"./våben_data.js\">");
+        } else {
+          console.warn("Dataset script may have loaded, but no global array was found (expected window.vaaben).");
+        }
+
+        // Fallback demo (only used if everything fails)
+        return [
+          { id:"demo1", navn:"Shotgun // Demo", pris:12000, billede: PLACEHOLDER_IMG },
+          { id:"demo2", navn:"Pistol // Demo",  pris: 6500, billede: PLACEHOLDER_IMG },
+          { id:"demo3", navn:"Rifle // Demo",   pris:18000, billede: PLACEHOLDER_IMG }
+        ];
+      }
+
+      function normalizeItem(item, index){
+        const id = item.id ?? item._id ?? item.slug ?? item.nummer ?? ("item_" + index);
+        const name = item.name ?? item.title ?? item.navn ?? "Unknown";
+        const price = item.price ?? item.kr ?? item.cost ?? item.pris ?? 0;
+
+        // your dataset uses "billede"
+        const image =
+          item.image ?? item.img ?? item.photo ??
+          item.billede ?? item.billedeUrl ?? item.imageUrl ??
+          "";
+
+        const keywords = item.keywords ?? item.tags ?? item.type ?? item.kategori ?? "";
+        const desc = item.desc ?? item.beskrivelse ?? item.description ?? "";
+
+        return { ...item, id, name, price, image, keywords, desc };
+      }
+
+      // Try different extension-case if the first image fails (e.g. .PNG -> .png)
+      function buildImageCandidates(path){
+        if (!path) return [PLACEHOLDER_IMG];
+
+        let p = String(path).replace(/\\/g, "/");
+
+        const m = p.match(/\.(jpg|jpeg|png|webp)$/i);
+        if (!m) return [encodeURI(p), PLACEHOLDER_IMG];
+
+        const ext = m[1];
+        const lower = ext.toLowerCase();
+        const upper = ext.toUpperCase();
+
+        const pLower = p.slice(0, -ext.length) + lower;
+        const pUpper = p.slice(0, -ext.length) + upper;
+
+        const out = [];
+        for (const raw of [p, pLower, pUpper]) {
+          const u = encodeURI(raw);
+          if (!out.includes(u)) out.push(u);
+        }
+        out.push(PLACEHOLDER_IMG);
+        return out;
+      }
+
+      function applyQuerySort(){
+        const q = (qEl.value || "").trim().toLowerCase();
+        const mode = sortEl.value || "default";
+
+        working = allData.filter(item => {
+          if (!q) return true;
+          const hay = [
+            item.name,
+            item.keywords,
+            item.desc,
+            item.type,
+            item.kategori
+          ].filter(Boolean).join(" ").toLowerCase();
+          return hay.includes(q);
+        });
+
+        const arr = [...working];
+        if (mode === "price_asc") arr.sort((a,b) => (a.price||0) - (b.price||0));
+        if (mode === "price_desc") arr.sort((a,b) => (b.price||0) - (a.price||0));
+        if (mode === "name_asc") arr.sort((a,b) => String(a.name||"").localeCompare(String(b.name||""), "en"));
+        if (mode === "name_desc") arr.sort((a,b) => String(b.name||"").localeCompare(String(a.name||""), "en"));
+
+        working = arr;
+
+        gridEl.innerHTML = "";
+        renderedCount = 0;
+
+        updateHints();
+        renderNextBatch();
+      }
+
+      function updateHints(){
+        const total = working.length;
+
+        const dataWasFallback = (allData.length === 3 && String(allData[0]?.id||"").startsWith("demo"));
+        const datasetInfo =
+          window.__DATASET_ERR__ ? "DATASET: 404 / failed" :
+          window.__DATASET_OK__ ? "DATASET: loaded" :
+          "DATASET: unknown";
+
+        hintEl.textContent =
+          `${datasetInfo} — Items: ${total}${dataWasFallback ? " (FALLBACK DEMO IN USE!)" : ""}`;
+      }
+
+      function buildCard(item){
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "weaponCard";
+        btn.dataset.id = item.id;
+
+        btn.innerHTML = `
+          <div class="weaponThumb">
+            <img alt="${safeText(item.name)}" loading="lazy" />
+          </div>
+          <div class="weaponTitle" style="margin:10px 6px 0; color:rgba(210,255,248,.90); letter-spacing:.06em; font-size:13px; line-height:1.25;">
+            ${safeText(item.name)}
+          </div>
+          <div class="weaponPrice">${safeText(formatKr(item.price))}</div>
+        `;
+
+        const img = btn.querySelector("img");
+        const candidates = buildImageCandidates(item.image);
+        img.dataset.candidates = JSON.stringify(candidates);
+        img.dataset.idx = "0";
+        img.src = candidates[0];
+
+        img.addEventListener("error", () => {
+          const list = JSON.parse(img.dataset.candidates || "[]");
+          let idx = Number(img.dataset.idx || "0");
+          idx += 1;
+          img.dataset.idx = String(idx);
+          img.src = list[idx] || PLACEHOLDER_IMG;
+        });
+
+        btn.addEventListener("click", () => {
+          try { sessionStorage.setItem('selectedWeapon', JSON.stringify(item)); } catch(e) {}
+          window.location.href = 'show.html';
+        });
+
+        return btn;
+      }
+
+      function renderNextBatch(){
+        const total = working.length;
+
+        if (!total){
+          statusEl.textContent = "No listings match your search.";
+          updateHints();
+          return;
+        }
+
+        if (renderedCount >= total){
+          statusEl.textContent = "— End of listings —";
+          updateHints();
+          return;
+        }
+
+        const next = working.slice(renderedCount, renderedCount + PAGE_SIZE);
+        const frag = document.createDocumentFragment();
+        next.forEach(item => frag.appendChild(buildCard(item)));
+        gridEl.appendChild(frag);
+
+        renderedCount += next.length;
+
+        statusEl.textContent = (renderedCount < total)
+          ? "Scrolling… loading more when you reach the bottom."
+          : "— End of listings —";
+
+        updateHints();
+      }
+
+      function setupInfiniteScroll(){
+        if ("IntersectionObserver" in window){
+          const io = new IntersectionObserver((entries) => {
+            const e = entries[0];
+            if (e && e.isIntersecting) renderNextBatch();
+          }, { root: null, rootMargin: "600px 0px", threshold: 0 });
+
+          io.observe(sentinelEl);
+        } else {
+          window.addEventListener("scroll", () => {
+            const nearBottom = (window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 900);
+            if (nearBottom) renderNextBatch();
+          });
+        }
+      }
+
+      qEl.addEventListener("input", applyQuerySort);
+      sortEl.addEventListener("change", applyQuerySort);
+      resetBtn.addEventListener("click", () => {
+        qEl.value = "";
+        sortEl.value = "default";
+        applyQuerySort();
+      });
+
+      (function boot(){
+        const raw = getData();
+        allData = raw.map(normalizeItem);
+
+        // --- RANDOMIZE EVERYTHING (Fisher–Yates) ---
+        function shuffle(arr){
+          for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+          }
+          return arr;
+        }
+
+        // shuffle a copy
+        let shuffled = shuffle([...allData]);
+
+        // --- Find weapon with id = 1 ---
+        const mainIndex = shuffled.findIndex(item => String(item.id) === "1");
+
+        if (mainIndex !== -1) {
+          // remove it
+          const [mainItem] = shuffled.splice(mainIndex, 1);
+
+          // 👉 place as #14 in the grid (0-based index = 13)
+          const TARGET_INDEX = 13;
+
+          // insert at exact index
+          if (shuffled.length >= TARGET_INDEX) {
+            shuffled.splice(TARGET_INDEX, 0, mainItem);
+          } else {
+            shuffled.push(mainItem);
+          }
+        }
+
+        // IMPORTANT: update allData, otherwise applyQuerySort() may restore order
+        allData = shuffled;
+        working = [...allData];
+
+        console.log("Loaded items:", allData.length, allData.slice(0,3));
+        setupInfiniteScroll();
+        applyQuerySort();
+      })();
+    </script>
+  </div>
+</body>
+</html>

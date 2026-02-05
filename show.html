@@ -1,0 +1,422 @@
+<!-- show.html -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>GhostMarket — Show</title>
+
+  <!-- CSS (yours) -->
+  <link rel="stylesheet" href="weapons.css" />
+
+  <!-- Leaflet (map) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
+
+  <!-- DATA (yours) -->
+  <script src="våben_data.js" defer></script>
+
+  <style>
+    /* Small helpers without touching weapons.css */
+    a{ color:inherit; }
+
+    .pillRow{ display:flex; flex-wrap:wrap; gap:10px; }
+    .pill{
+      padding:10px 12px;
+      border-radius:999px;
+      font-size:12px;
+      letter-spacing:.08em;
+      color: rgba(210,255,248,.86);
+      background: linear-gradient(180deg, rgba(0,0,0,.62), rgba(0,0,0,.35));
+      box-shadow: inset 0 0 18px rgba(0,0,0,.78), 0 0 0 1px rgba(0,255,204,.18);
+      user-select:none;
+    }
+
+    .kv{ display:grid; gap:8px; }
+    .kvRow{
+      display:flex; justify-content:space-between; gap:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      background: linear-gradient(180deg, rgba(0,0,0,.60), rgba(0,0,0,.36));
+      box-shadow: inset 0 0 18px rgba(0,0,0,.78), 0 0 0 1px rgba(0,255,204,.14);
+      color: rgba(170,255,240,.82);
+      font-size:12px;
+      letter-spacing:.04em;
+    }
+    .kvRow b{ color: rgba(210,255,248,.92); font-weight:700; }
+
+    .notice{
+      margin:10px 2px 0;
+      color: rgba(170,255,240,.72);
+      font-size: 12px;
+      letter-spacing:.06em;
+    }
+
+    /* Keep your visible watermark style (yellow + bigger) */
+    .ghostmark-watermark {
+      position: fixed;
+      bottom: 12px;
+      right: 14px;
+      font-family: monospace;
+      font-size: 20px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgb(217, 255, 1);
+      pointer-events: none;
+      z-index: 9999;
+      text-align: right;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Film watermark (click area toggles visibility) -->
+  <div class="ghostmark-toggle" onclick="toggleGhostmark()">
+    <div class="ghostmark-watermark">
+      ©Haumann Studio<br>
+      FILM PROP — FAKE FAKE FAKE
+    </div>
+  </div>
+
+  <script>
+    function toggleGhostmark() {
+      document.body.classList.toggle("ghostmark-hidden");
+    }
+  </script>
+
+  <div class="page">
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbarInner">
+        <div class="brand">
+          <div class="brandTitle">GHOSTMARKET</div>
+          <div class="brandSub">PROPS // FICTIONAL MARKET</div>
+        </div>
+
+        <nav class="navLinks">
+          <a href="main.html">Roulette</a>
+          <a href="weapons.html">Market</a>
+          <a href="#mapSection">Map</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <!-- HERO -->
+      <section class="heroPanel">
+        <div class="heroStack">
+          <div>
+            <h1 class="heroTitle" id="weaponTitle">LOADING…</h1>
+            <p class="heroHint" id="weaponHint">Loading from våben_data.js…</p>
+          </div>
+
+          <div class="searchRow">
+            <a class="btn btnGhost" href="weapons.html">← Back</a>
+            <button id="copyLinkBtn" class="btn">Copy link</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- DETAIL -->
+      <section class="detailPanel" aria-label="Weapon details">
+        <div class="detailTop">
+          <h2 class="detailTitle" id="weaponSubTitle">ITEM</h2>
+          <button class="detailClose" type="button" id="toMarketBtn" title="Back to market">X</button>
+        </div>
+
+        <div class="detailBody">
+          <!-- left -->
+          <div class="detailImage">
+            <img id="weaponImage" src="img/våben_data/hovdevåben.jpg" alt="Weapon image" />
+          </div>
+
+          <!-- right -->
+          <div class="detailMeta">
+            <div class="detailPrice" id="weaponPrice">—</div>
+            <div class="detailDesc" id="weaponDesc">—</div>
+
+            <div class="kv" aria-label="Specifications">
+              <div class="kvRow"><b>Type</b><span id="specType">—</span></div>
+              <div class="kvRow"><b>Location</b><span id="specSted">—</span></div>
+              <div class="kvRow"><b>Coordinates</b><span id="specCoords">—</span></div>
+              <div class="kvRow"><b>Main weapon</b><span id="specMain">—</span></div>
+            </div>
+
+            <div class="pillRow" aria-label="Tags" id="tagRow"></div>
+
+            <div class="detailActions">
+              <button type="button" id="notifyBtn">Notify seller</button>
+            </div>
+
+            <p class="notice" id="notifyStatus"></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- MAP -->
+      <section id="mapSection">
+        <h3 class="sectionTitle">Pickup location</h3>
+
+        <div class="mapPanel">
+          <div id="map" role="application" aria-label="Map"></div>
+        </div>
+
+        <p class="heroHint" id="locationText" style="margin:10px 2px 0;">—</p>
+      </section>
+
+      <!-- RECOMMENDED -->
+      <section class="recommendPanel" aria-label="Recommended">
+        <h3 class="sectionTitle">You may also like</h3>
+        <div class="recommendGrid" id="recommendGrid"></div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      GHOSTMARKET • FICTIONAL INTERFACE • FOR FILM USE ONLY
+    </footer>
+  </div>
+
+  <script>
+    // ===========
+    // show.html logic — uses your våben_data.js
+    // Your data file exposes e.g. window.vaaben (and aliases)
+    // ===========
+
+    const $ = (id) => document.getElementById(id);
+
+    function getVaabenArray(){
+      // Your file provides these aliases — we use them directly
+      return (
+        window.vaaben ||
+        window.vaaben_data ||
+        window.weaponsData ||
+        window["våben_data"] ||
+        []
+      );
+    }
+
+    function getSelectedItem(){
+      // Prefer sessionStorage object (set by main/weapons), fallback to id in URL
+      try{
+        const s = sessionStorage.getItem('selectedWeapon');
+        if (s) return JSON.parse(s);
+      }catch(e){}
+
+      const url = new URL(window.location.href);
+      const q = url.searchParams.get("id");
+      return q || null;
+    }
+
+    function setSelectedId(id){
+      /* no-op: we avoid storing ids client-side */
+    }
+
+    function formatPrice(pris){
+      if(pris == null) return "—";
+      if(typeof pris === "string") return pris;
+
+      // Keep formatting style unchanged (prevents visual change)
+      try{
+        return new Intl.NumberFormat("da-DK").format(pris) + " DKK";
+      }catch{
+        return pris + " DKK";
+      }
+    }
+
+    function escapeHtml(s){
+      return String(s ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    // ===== render detail =====
+    function renderVaabenItem(item){
+      $("weaponTitle").textContent = item.navn || "—";
+      $("weaponSubTitle").textContent = String(item.type || "ITEM").toUpperCase();
+
+      $("weaponPrice").textContent = formatPrice(item.pris);
+      $("weaponDesc").textContent = item.beskrivelse || "—";
+
+      const img = item.billede || "img/våben_data/hovdevåben.jpg";
+      const imgEl = $("weaponImage");
+      imgEl.src = img;
+      imgEl.alt = item.navn || "Weapon";
+
+      $("specType").textContent = item.type || "—";
+      $("specSted").textContent = item.lokation?.sted || "—";
+
+      const lat = item.lokation?.lat;
+      const lng = item.lokation?.lng;
+      $("specCoords").textContent =
+        (lat != null && lng != null) ? `${lat.toFixed(5)}, ${lng.toFixed(5)}` : "—";
+
+      $("specMain").textContent = item.erHovedVaaben ? "YES" : "NO";
+
+      // tags (simple: type + main weapon + price range)
+      const tags = [];
+      if(item.type) tags.push(item.type);
+      tags.push(item.erHovedVaaben ? "MAIN WEAPON" : "SECONDARY");
+      if(typeof item.pris === "number"){
+        tags.push(item.pris >= 8000 ? "HIGH TIER" : item.pris >= 4000 ? "MID TIER" : "LOW TIER");
+      }
+
+      const tagRow = $("tagRow");
+      tagRow.innerHTML = "";
+      tags.forEach(t => {
+        const span = document.createElement("span");
+        span.className = "pill";
+        span.textContent = t;
+        tagRow.appendChild(span);
+      });
+
+      // location line
+      const parts = [];
+      if(item.lokation?.sted) parts.push(item.lokation.sted);
+      if(lat != null && lng != null) parts.push(`(${lat.toFixed(5)}, ${lng.toFixed(5)})`);
+      $("locationText").textContent = parts.length ? parts.join(" — ") : "Location not specified.";
+    }
+
+    // ===== map (Leaflet) =====
+    let map, marker;
+    function initOrUpdateMap(item){
+      const lat = item.lokation?.lat;
+      const lng = item.lokation?.lng;
+
+      if(lat == null || lng == null){
+        $("map").style.height = "180px";
+        $("map").innerHTML = `<div style="padding:14px;color:rgba(170,255,240,.72);font-size:12px;letter-spacing:.06em;">
+          No coordinates found for this item.
+        </div>`;
+        return;
+      }
+
+      if(!window.L){
+        $("locationText").textContent += " (map unavailable offline)";
+        return;
+      }
+
+      if(!map){
+        map = L.map("map", { zoomControl: true }).setView([lat, lng], 7);
+
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: "&copy; OpenStreetMap"
+        }).addTo(map);
+      } else {
+        map.setView([lat, lng], 9);
+      }
+
+      if(marker) marker.remove();
+      marker = L.marker([lat, lng]).addTo(map);
+
+      const title = item.navn || "Pickup";
+      const sted  = item.lokation?.sted || "";
+      marker.bindPopup(`<b>${escapeHtml(title)}</b><br>${escapeHtml(sted)}`).openPopup();
+
+      setTimeout(() => map.invalidateSize(), 120);
+    }
+
+    // ===== recommended (3 items) =====
+    function renderRecommended(all, currentId){
+      const grid = $("recommendGrid");
+      grid.innerHTML = "";
+
+      const pool = all.filter(v => String(v.id) !== String(currentId));
+      // shuffle
+      for(let i = pool.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+      }
+
+      const picks = pool.slice(0, 3);
+
+      picks.forEach(item => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "weaponCard";
+        btn.innerHTML = `
+          <div class="weaponThumb">
+            <img src="${escapeHtml(item.billede || "img/våben_data/hovdevåben.jpg")}" alt="${escapeHtml(item.navn || "Weapon")}">
+          </div>
+          <div class="weaponPrice">${escapeHtml(formatPrice(item.pris))}</div>
+        `;
+
+        btn.addEventListener("click", () => {
+          try { sessionStorage.setItem('selectedWeapon', JSON.stringify(item)); } catch(e) {}
+          window.location.href = 'show.html';
+        });
+
+        grid.appendChild(btn);
+      });
+
+      if(!picks.length){
+        grid.innerHTML = `<div class="heroHint">No recommendations (too few items in the dataset).</div>`;
+      }
+    }
+
+    // ===== actions =====
+    function wireActions(item){
+      $("toMarketBtn").addEventListener("click", () => (window.location.href = "weapons.html"));
+
+      $("notifyBtn").addEventListener("click", () => {
+        // Film demo only: “notify seller that you’re coming”
+        const sted = item.lokation?.sted || "the pickup location";
+        $("notifyStatus").textContent =
+          `Seller notified that you will check “${item.navn}” at: ${sted}.`;
+
+        $("notifyBtn").textContent = "Notified ✓";
+        setTimeout(() => ($("notifyBtn").textContent = "Notify seller"), 1200);
+
+        alert(
+          `NOTIFY SENT\n\nSeller has been notified that you will check:\n` +
+          `${item.navn}\n\nLocation:\n${sted}\n\n(Film UI — demo)`
+        );
+      });
+
+      $("copyLinkBtn").addEventListener("click", async () => {
+        try{
+          await navigator.clipboard.writeText(window.location.href);
+          $("copyLinkBtn").textContent = "Copied ✓";
+          setTimeout(() => ($("copyLinkBtn").textContent = "Copy link"), 900);
+        }catch{
+          alert("Could not copy link (browser blocked clipboard).");
+        }
+      });
+    }
+
+    // ===== boot =====
+    window.addEventListener("load", () => {
+      const data = getVaabenArray();
+
+      if(!Array.isArray(data) || !data.length){
+        $("weaponTitle").textContent = "DATA NOT FOUND";
+        $("weaponHint").textContent =
+          "Could not find window.vaaben from våben_data.js (check that the file is loaded and the path is correct).";
+        $("weaponDesc").textContent =
+          "Make sure show.html is in the same folder as våben_data.js, or update the script src path.";
+        $("locationText").textContent = "—";
+        return;
+      }
+
+      const wanted = getSelectedItem();
+      let item = null;
+
+      if (wanted && typeof wanted === 'object') {
+        item = wanted;
+      } else if (wanted) {
+        item = data.find(v => String(v.id) === String(wanted)) || null;
+      }
+      if(!item) item = data[0];
+
+      try { sessionStorage.removeItem('selectedWeapon'); } catch(e) {}
+
+      renderVaabenItem(item);
+      initOrUpdateMap(item);
+      renderRecommended(data, item.id);
+      wireActions(item);
+    });
+  </script>
+</body>
+</html>

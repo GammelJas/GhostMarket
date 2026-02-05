@@ -1,0 +1,683 @@
+/* weapons.css */
+
+/* ===== THEME (inspired by login.css) ===== */
+:root{
+  --c1:#00ffcc;      /* cyan neon */
+  --c2:#b400ff;      /* purple neon */
+  --c3:#ff2bd6;      /* pink neon */
+  --ink: rgba(0,0,0,.62);
+  --ink2: rgba(0,0,0,.38);
+
+  --panelA: rgba(0,0,0,.70);
+  --panelB: rgba(0,0,0,.42);
+  --line: rgba(0,255,204,.22);
+  --line2: rgba(180,0,255,.20);
+  --txt: rgba(210,255,248,.92);
+  --muted: rgba(170,255,240,.72);
+
+  --r: 16px;
+  --cut: 18px; /* cut corners */
+  --shadow: 0 0 30px rgba(0,255,204,.10), 0 0 80px rgba(180,0,255,.10), inset 0 0 22px rgba(0,0,0,.65);
+}
+
+*{ box-sizing:border-box; font-family:"Courier New", monospace; }
+
+html, body{ height:100%; }
+html{
+  scroll-behavior:smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body{
+  margin:0;
+  min-height:100vh;
+  color: var(--c1);
+  overflow-x:hidden;
+
+  /* Same background trick as in login.css */
+  background:
+    url("img\\baggrund.png"),
+    url("img/baggrund.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat:no-repeat;
+  background-attachment: fixed;
+}
+
+/* ===== PAGE WRAP ===== */
+.page{
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+
+
+/* ===== TOPBAR ===== */
+.topbar{
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
+
+  /* Safe-area friendly on notched devices (no change on desktop) */
+  padding:
+    calc(14px + env(safe-area-inset-top))
+    calc(16px + env(safe-area-inset-right))
+    14px
+    calc(16px + env(safe-area-inset-left));
+
+  backdrop-filter: blur(7px);
+  background: linear-gradient(180deg, rgba(0,0,0,.62), rgba(0,0,0,.34));
+  box-shadow: 0 10px 40px rgba(0,0,0,.35);
+}
+
+.topbarInner{
+  width:min(1200px, 94vw);
+  margin:0 auto;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+}
+
+.brand{
+  display:flex;
+  flex-direction:column;
+  line-height:1.05;
+  user-select:none;
+}
+
+.brandTitle{
+  color: var(--txt);
+  letter-spacing:.14em;
+  font-size: 14px;
+  text-shadow: 0 0 10px rgba(0,255,204,.12);
+}
+.brandSub{
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing:.10em;
+  opacity:.9;
+}
+
+.navLinks{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+
+.navLinks a{
+  text-decoration:none;
+  font-size:12px;
+  letter-spacing:.10em;
+  text-transform:uppercase;
+  color: rgba(210,255,248,.80);
+  padding: 10px 12px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.32));
+  box-shadow: inset 0 0 18px rgba(0,0,0,.70), 0 0 0 1px rgba(0,255,204,.14);
+  transition: filter .2s ease, transform .06s ease, box-shadow .2s ease;
+}
+
+.navLinks a:hover{
+  filter: brightness(1.08);
+  box-shadow: inset 0 0 18px rgba(0,0,0,.70), 0 0 0 1px rgba(180,0,255,.30), 0 0 22px rgba(180,0,255,.08);
+}
+
+.navLinks a:active{ transform: translateY(1px); }
+
+/* ===== MAIN LAYOUT ===== */
+main{
+  position:relative;
+  z-index:1; /* above page::before overlay */
+  width:min(1200px, 94vw);
+  margin: 18px auto 46px;
+  display:grid;
+  gap: 16px;
+  margin-top: 84px;
+}
+
+/* Top “panel” for intro/filter/search (optional) */
+.heroPanel{
+  position:relative;
+  padding: 18px 18px;
+  background: linear-gradient(180deg, var(--panelA), var(--panelB));
+  backdrop-filter: blur(6px);
+  clip-path: polygon(
+    var(--cut) 0,
+    calc(100% - var(--cut)) 0,
+    100% var(--cut),
+    100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%,
+    var(--cut) 100%,
+    0 calc(100% - var(--cut)),
+    0 var(--cut)
+  );
+  box-shadow: var(--shadow);
+  overflow:hidden;
+}
+
+.heroPanel::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  padding:1.5px;
+  background: linear-gradient(90deg, rgba(0,255,204,.85), rgba(180,0,255,.75), rgba(255,43,214,.55));
+  clip-path: polygon(
+    var(--cut) 0,
+    calc(100% - var(--cut)) 0,
+    100% var(--cut),
+    100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%,
+    var(--cut) 100%,
+    0 calc(100% - var(--cut)),
+    0 var(--cut)
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events:none;
+  opacity:.70;
+  filter: drop-shadow(0 0 10px rgba(0,255,204,.16));
+}
+
+.heroPanel::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,.030),
+      rgba(255,255,255,.030) 1px,
+      rgba(0,0,0,0) 4px,
+      rgba(0,0,0,0) 7px
+    );
+  opacity:.50;
+  pointer-events:none;
+  mix-blend-mode: overlay;
+}
+
+.heroStack{
+  position:relative;
+  z-index:1;
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap: 14px;
+  flex-wrap:wrap;
+}
+
+.heroTitle{
+  margin:0;
+  color: var(--txt);
+  font-size: 16px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  text-shadow: 0 0 10px rgba(0,255,204,.14);
+}
+.heroHint{
+  margin:6px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing:.08em;
+  max-width: 72ch;
+}
+
+.searchRow{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+
+/* inputs (match login look) */
+input[type="text"], input[type="search"], select{
+  padding: 12px 12px;
+  border:none;
+  outline:none;
+  border-radius: 12px;
+  color: var(--c1);
+  background: linear-gradient(180deg, rgba(0,0,0,.72), rgba(0,0,0,.42));
+  box-shadow:
+    0 0 0 1px rgba(0,255,204,.35),
+    0 0 22px rgba(0,255,204,.06),
+    inset 0 0 18px rgba(0,0,0,.75);
+  font-size: 14px;
+  letter-spacing: .02em;
+}
+
+input::placeholder{ color: rgba(0,255,204,.40); }
+
+input:focus, select:focus{
+  box-shadow:
+    0 0 0 1px rgba(180,0,255,.55),
+    0 0 26px rgba(180,0,255,.12),
+    inset 0 0 18px rgba(0,0,0,.75);
+}
+
+/* buttons (match login look) */
+button, .btn{
+  padding: 12px 12px;
+  border:none;
+  border-radius: 12px;
+  cursor:pointer;
+  color: #00110d;
+  letter-spacing: .10em;
+  text-transform: uppercase;
+  font-size: 13px;
+  background: linear-gradient(90deg, rgba(0,255,204,.95), rgba(180,0,255,.75));
+  box-shadow:
+    0 0 0 1px rgba(0,255,204,.30),
+    0 0 28px rgba(0,255,204,.12),
+    0 0 55px rgba(180,0,255,.10);
+  transition: transform .06s ease, filter .2s ease;
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+}
+
+button:hover, .btn:hover{ filter: brightness(1.08); }
+button:active, .btn:active{ transform: translateY(1px); }
+
+.btnGhost{
+  color: rgba(210,255,248,.86);
+  background: linear-gradient(180deg, rgba(0,0,0,.62), rgba(0,0,0,.35));
+  box-shadow: inset 0 0 18px rgba(0,0,0,.78), 0 0 0 1px rgba(0,255,204,.18);
+}
+.btnGhost:hover{
+  box-shadow: inset 0 0 18px rgba(0,0,0,.78), 0 0 0 1px rgba(180,0,255,.30), 0 0 22px rgba(180,0,255,.08);
+}
+
+/* ===== MARKET GRID (DBA-ish: 3 across) ===== */
+.marketGrid{
+  display:grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 2px;
+}
+
+/* weapon card (image + price only visible) */
+.weaponCard{
+  position:relative;
+  border:none;
+  text-align:left;
+  cursor:pointer;
+  padding: 10px;
+  background: linear-gradient(180deg, rgba(0,0,0,.64), rgba(0,0,0,.38));
+  backdrop-filter: blur(6px);
+  clip-path: polygon(
+    var(--cut) 0,
+    calc(100% - var(--cut)) 0,
+    100% var(--cut),
+    100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%,
+    var(--cut) 100%,
+    0 calc(100% - var(--cut)),
+    0 var(--cut)
+  );
+  box-shadow: var(--shadow);
+  overflow:hidden;
+  transition: transform .08s ease, filter .2s ease;
+}
+
+.weaponCard::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  padding:1.5px;
+  background: linear-gradient(90deg, rgba(0,255,204,.70), rgba(180,0,255,.55), rgba(255,43,214,.35));
+  clip-path: polygon(
+    var(--cut) 0,
+    calc(100% - var(--cut)) 0,
+    100% var(--cut),
+    100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%,
+    var(--cut) 100%,
+    0 calc(100% - var(--cut)),
+    0 var(--cut)
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events:none;
+  opacity:.55;
+}
+
+.weaponCard::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,.028),
+      rgba(255,255,255,.028) 1px,
+      rgba(0,0,0,0) 4px,
+      rgba(0,0,0,0) 7px
+    );
+  opacity:.45;
+  pointer-events:none;
+  mix-blend-mode: overlay;
+}
+
+.weaponCard:hover{
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+}
+
+.weaponCard:active{ transform: translateY(1px); }
+
+/* square image */
+.weaponThumb{
+  position:relative;
+  width:100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 12px;
+  overflow:hidden;
+  background: rgba(0,0,0,.45);
+  box-shadow: inset 0 0 18px rgba(0,0,0,.78), 0 0 0 1px rgba(0,255,204,.12);
+}
+
+.weaponThumb img{
+  width:100%;
+  height:100%;
+  object-fit: cover;
+  display:block;
+  filter: contrast(1.05) saturate(.95);
+}
+
+/* only price visible below */
+.weaponPrice{
+  margin: 10px 4px 2px;
+  color: rgba(210,255,248,.90);
+  text-shadow: 0 0 10px rgba(0,255,204,.12);
+  letter-spacing:.10em;
+  font-size: 13px;
+}
+
+/* hide extra text if present (DBA-look: clean cards) */
+.weaponName, .weaponMeta, .weaponShort{
+  display:none !important;
+}
+
+/* ===== DETAIL OVERLAY (click on a card) ===== */
+.detailOverlay{
+  position:fixed;
+  inset:0;
+  z-index:80;
+  display:none; /* toggle via JS: .show */
+  align-items:center;
+  justify-content:center;
+  padding: 18px;
+  background: rgba(0,0,0,.70);
+  backdrop-filter: blur(6px);
+}
+
+.detailOverlay.show{ display:flex; }
+
+.detailPanel{
+  width:min(980px, 96vw);
+  max-height: 86vh;
+  overflow:auto;
+  position:relative;
+  padding: 16px;
+  background: linear-gradient(180deg, rgba(0,0,0,.72), rgba(0,0,0,.42));
+  box-shadow: 0 0 70px rgba(0,0,0,.55), 0 0 0 1px rgba(0,255,204,.18);
+  border-radius: 18px;
+}
+
+.detailTop{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.detailTitle{
+  margin:0;
+  color: var(--txt);
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  font-size: 15px;
+}
+
+.detailClose{
+  appearance:none;
+  border:none;
+  cursor:pointer;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(0,0,0,.60), rgba(0,0,0,.34));
+  box-shadow: inset 0 0 18px rgba(0,0,0,.78), 0 0 0 1px rgba(0,255,204,.18);
+  color: rgba(210,255,248,.85);
+  letter-spacing:.10em;
+}
+.detailClose:hover{ box-shadow: inset 0 0 18px rgba(0,0,0,.78), 0 0 0 1px rgba(180,0,255,.30), 0 0 22px rgba(180,0,255,.08); }
+
+.detailBody{
+  display:grid;
+  grid-template-columns: 1.1fr .9fr;
+  gap: 14px;
+}
+
+.detailImage{
+  border-radius: 14px;
+  overflow:hidden;
+  background: rgba(0,0,0,.45);
+  box-shadow: inset 0 0 18px rgba(0,0,0,.78), 0 0 0 1px rgba(0,255,204,.12);
+}
+
+.detailImage img{
+  width:100%;
+  height:100%;
+  max-height: 52vh;
+  object-fit: cover;
+  display:block;
+}
+
+.detailMeta{
+  display:grid;
+  gap: 10px;
+  align-content:start;
+}
+
+.detailPrice{
+  font-size: 16px;
+  letter-spacing:.12em;
+  color: rgba(210,255,248,.92);
+  text-shadow: 0 0 10px rgba(0,255,204,.12);
+}
+
+.detailDesc{
+  padding: 12px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(0,0,0,.60), rgba(0,0,0,.36));
+  box-shadow: inset 0 0 18px rgba(0,0,0,.78), 0 0 0 1px rgba(0,255,204,.14);
+  color: rgba(170,255,240,.82);
+  font-size: 12px;
+  line-height: 1.55;
+  letter-spacing:.04em;
+}
+
+.detailActions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top: 4px;
+}
+
+/* ===== MAP SECTION ===== */
+#mapSection{
+  margin-top: 16px;
+}
+
+.sectionTitle{
+  margin: 0 0 10px;
+  color: var(--txt);
+  letter-spacing:.14em;
+  text-transform: uppercase;
+  font-size: 14px;
+  text-shadow: 0 0 10px rgba(0,255,204,.12);
+}
+
+.mapPanel{
+  position:relative;
+  padding: 12px;
+  background: linear-gradient(180deg, rgba(0,0,0,.66), rgba(0,0,0,.40));
+  backdrop-filter: blur(6px);
+  border-radius: 18px;
+  box-shadow: 0 0 0 1px rgba(0,255,204,.16), 0 0 40px rgba(0,0,0,.35), inset 0 0 22px rgba(0,0,0,.65);
+  overflow:hidden;
+}
+
+.mapPanel::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255,255,255,.026),
+    rgba(255,255,255,.026) 1px,
+    rgba(0,0,0,0) 4px,
+    rgba(0,0,0,0) 7px
+  );
+  opacity:.45;
+  pointer-events:none;
+  mix-blend-mode: overlay;
+}
+
+#map{
+  position:relative;
+  z-index:1;
+  width:100%;
+  height: 380px;
+  border-radius: 14px;
+  overflow:hidden;
+  box-shadow: inset 0 0 18px rgba(0,0,0,.78), 0 0 0 1px rgba(0,255,204,.12);
+}
+
+/* If you use Leaflet, keep controls in the same “neon” feel */
+.leaflet-control-container .leaflet-control{
+  border-radius: 12px !important;
+  overflow:hidden;
+  box-shadow: 0 0 0 1px rgba(0,255,204,.14), 0 0 18px rgba(0,0,0,.35) !important;
+}
+.leaflet-control a{
+  background: rgba(0,0,0,.75) !important;
+  color: rgba(210,255,248,.85) !important;
+}
+
+/* ===== RECOMMENDED (3 across / 2 down) ===== */
+.recommendPanel{
+  margin-top: 16px;
+  position:relative;
+  padding: 16px;
+  background: linear-gradient(180deg, rgba(0,0,0,.68), rgba(0,0,0,.40));
+  border-radius: 18px;
+  box-shadow: 0 0 0 1px rgba(0,255,204,.16), 0 0 40px rgba(0,0,0,.35), inset 0 0 22px rgba(0,0,0,.65);
+}
+
+.recommendGrid{
+  display:grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+/* reuse weaponCard look */
+.recommendGrid .weaponCard{
+  box-shadow: 0 0 26px rgba(0,255,204,.08), 0 0 60px rgba(180,0,255,.08), inset 0 0 22px rgba(0,0,0,.65);
+}
+
+/* ===== FOOTER ===== */
+.footer{
+  position:relative;
+  z-index:1;
+  margin-top:auto;
+  padding: 22px 16px 28px;
+  text-align:center;
+  color: rgba(170,255,240,.60);
+  letter-spacing:.08em;
+  font-size: 11px;
+}
+
+/* ===== SCROLLBAR (webkit) ===== */
+*::-webkit-scrollbar{ width: 10px; height: 10px; }
+*::-webkit-scrollbar-thumb{
+  background: linear-gradient(180deg, rgba(0,255,204,.28), rgba(180,0,255,.22));
+  border-radius: 999px;
+  border: 2px solid rgba(0,0,0,.55);
+}
+*::-webkit-scrollbar-track{ background: rgba(0,0,0,.35); }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 980px){
+  .marketGrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .recommendGrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .detailBody{ grid-template-columns: 1fr; }
+  .detailImage img{ max-height: 42vh; }
+}
+
+@media (max-width: 560px){
+  .marketGrid{ grid-template-columns: 1fr; }
+  .recommendGrid{ grid-template-columns: 1fr; }
+  .brandSub{ display:none; }
+  #map{ height: 320px; }
+}
+
+/* Make the dropdown options black */
+select option,
+select optgroup{
+  background: #000;
+  color: var(--c1);
+}
+
+select{
+  background: #000;
+}
+
+/* ===============================
+   Controls the fake
+   film watermark in the corner
+================================ */
+
+/* CLICKABLE FILM WATERMARK AREA */
+.ghostmark-toggle {
+  position: fixed;
+  bottom: calc(10px + env(safe-area-inset-bottom));
+  right:  calc(14px + env(safe-area-inset-right));
+  padding: 26px 120px;
+  background: rgba(0, 0, 0, 0.01); /* 5% nearly-invisible box */
+  cursor: pointer;
+  z-index: 9999;
+}
+
+/* WATERMARK TEXT */
+.ghostmark-watermark {
+  font-family: monospace;
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgba(180, 255, 240, 0.85);
+
+  /* Glow effect */
+  text-shadow:
+    0 0 4px rgba(180,255,240,0.6),
+    0 0 10px rgba(120,220,200,0.35),
+    0 0 18px rgba(120,220,200,0.15);
+
+  pointer-events: none; /* clicks pass through to the box */
+}
+
+/* HIDDEN STATE (click = hide) */
+body.ghostmark-hidden .ghostmark-watermark {
+  display: none;
+}

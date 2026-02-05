@@ -1,0 +1,461 @@
+/* ===============================
+   GHOSTMARKET — MAIN.CSS
+   Primary roulette page
+   Matches login.css + weapons.css
+================================ */
+
+/* ===== THEME ===== */
+:root{
+  --c1:#00ffcc;
+  --c2:#b400ff;
+  --c3:#ff2bd6;
+
+  --panelA: rgba(0,0,0,.72);
+  --panelB: rgba(0,0,0,.42);
+
+  --txt: rgba(210,255,248,.92);
+  --muted: rgba(170,255,240,.70);
+
+  --cut: 18px;
+  --shadow:
+    0 0 30px rgba(0,255,204,.10),
+    0 0 80px rgba(180,0,255,.10),
+    inset 0 0 22px rgba(0,0,0,.65);
+
+  /* Responsive helpers (desktop stays identical; only scales DOWN on small screens) */
+  --panelPad: clamp(14px, 2vw, 18px);
+  --gap: clamp(12px, 2vw, 18px);
+
+  --nameWindowH: clamp(96px, 16vw, 120px);
+  --nameFont: clamp(18px, 3.2vw, 26px);
+
+  --targetImg: clamp(170px, 26vw, 200px);
+  --targetGap: clamp(16px, 4vw, 35px);
+
+  /* Default weapon thumb size (can still be overridden inline in HTML if you do that) */
+  --weaponThumbDefault: clamp(130px, 22vw, 180px);
+}
+
+*{
+  box-sizing:border-box;
+  font-family:"Courier New", monospace;
+}
+
+html, body{
+  height:100%;
+}
+
+html{
+  -webkit-text-size-adjust: 100%;
+}
+
+body{
+  margin:0;
+  color:var(--c1);
+
+  background:
+    url("img\\baggrund.png"),
+    url("img/baggrund.png");
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+  background-attachment:fixed;
+
+  overflow-x:hidden;
+}
+
+/* ===== PAGE ===== */
+.page{
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+
+/* overlay mood */
+.page::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 20% 15%, rgba(180,0,255,.10), transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(0,255,204,.08), transparent 46%);
+}
+
+/* ===== MAIN LAYOUT ===== */
+main{
+  position:relative;
+  z-index:1;
+  width:min(1000px, 94vw);
+  margin: 90px auto 40px;
+
+  /* Controls the weapon panel width in one place */
+  --weaponPanelW: 350px;
+
+  display:grid;
+  grid-template-columns: 1fr var(--weaponPanelW);
+  gap: var(--gap);
+  align-items:start;
+}
+
+
+/* ===============================
+   LEFT SIDE — ROULETTE
+================================ */
+
+.roulettePanel{
+  position:relative;
+  padding: var(--panelPad);
+  background: linear-gradient(180deg, var(--panelA), var(--panelB));
+  backdrop-filter: blur(6px);
+  box-shadow: var(--shadow);
+  clip-path: polygon(
+    var(--cut) 0,
+    calc(100% - var(--cut)) 0,
+    100% var(--cut),
+    100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%,
+    var(--cut) 100%,
+    0 calc(100% - var(--cut)),
+    0 var(--cut)
+  );
+}
+
+/* roulette box */
+.rouletteBox{
+  display:flex;
+  align-items:center;
+  gap: var(--gap);
+}
+
+/* spinning name window */
+.nameWindow{
+  flex:1;
+  height: var(--nameWindowH);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  background: linear-gradient(180deg, rgba(0,0,0,.75), rgba(0,0,0,.45));
+  border-radius:16px;
+  box-shadow:
+    inset 0 0 22px rgba(0,0,0,.85),
+    0 0 0 1px rgba(0,255,204,.25);
+
+  overflow:hidden;
+}
+
+.nameText{
+  font-size: var(--nameFont);
+  letter-spacing:.14em;
+  color:var(--txt);
+  text-shadow: 0 0 14px rgba(0,255,204,.25);
+  white-space:nowrap;
+}
+
+/* lever */
+.lever{
+  width:70px;
+  height:160px;
+  position:relative;
+  cursor:pointer;
+}
+
+.leverBase{
+  position:absolute;
+  bottom:0;
+  left:50%;
+  transform:translateX(-50%);
+  width:24px;
+  height:90px;
+  background:#111;
+  border-radius:12px;
+  box-shadow: inset 0 0 14px rgba(0,0,0,.9);
+}
+
+.leverHandle{
+  position:absolute;
+  top:0;
+  left:50%;
+  transform:translateX(-50%);
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  background: linear-gradient(90deg, var(--c1), var(--c2));
+  box-shadow:
+    0 0 18px rgba(0,255,204,.45),
+    0 0 28px rgba(180,0,255,.35);
+  transition: transform .18s ease;
+}
+
+.lever:active .leverHandle{
+  transform: translateX(-50%) translateY(16px);
+}
+
+/* ===== ACCEPT / DECLINE ===== */
+
+.decisionRow{
+  margin-top:18px;
+  display:flex;
+  gap:14px;
+}
+
+.btn{
+  flex:1;
+  padding:14px;
+  border:none;
+  border-radius:14px;
+  cursor:pointer;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  font-size:13px;
+}
+
+.btnAccept{
+  background: linear-gradient(90deg, var(--c1), var(--c2));
+  color:#00110d;
+}
+
+.btnDecline{
+  background: linear-gradient(180deg, rgba(0,0,0,.7), rgba(0,0,0,.4));
+  color:var(--txt);
+  box-shadow: inset 0 0 18px rgba(0,0,0,.8),
+              0 0 0 1px rgba(0,255,204,.18);
+}
+
+/* ===============================
+   TARGET INFO WINDOW
+================================ */
+
+.targetPanel{
+  margin-top:18px;
+  display:grid;
+  grid-template-columns: var(--targetImg) 1fr;
+  gap: var(--targetGap);
+}
+
+.targetImage{
+  width: var(--targetImg);
+  height: var(--targetImg);
+  aspect-ratio: 1;
+  border-radius:14px;
+  overflow:hidden;
+  box-shadow:
+    inset 0 0 18px rgba(0,0,0,.85),
+    0 0 0 1px rgba(0,255,204,.22);
+}
+
+.targetImage img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.targetData{
+  display:grid;
+  gap:6px;
+  font-size:13px;
+  color:var(--muted);
+}
+
+/* ===============================
+   RIGHT SIDE — WEAPONS
+================================ */
+
+.weaponPanel{
+  padding:16px;
+  background: linear-gradient(180deg, var(--panelA), var(--panelB));
+  backdrop-filter: blur(6px);
+  box-shadow: var(--shadow);
+  border-radius:18px;
+
+  /* CHANGE SIZE HERE (weapon images in px) */
+  --weaponThumbSize: var(--weaponThumbDefault);
+}
+
+.weaponTitle{
+  margin:0 0 12px;
+  font-size:14px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--txt);
+}
+
+/* Vertical list (instead of 3-column grid) */
+.weaponGrid{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+/* Card */
+.weaponCard{
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:12px;
+
+  background: linear-gradient(180deg, rgba(0,0,0,.65), rgba(0,0,0,.4));
+  border-radius:14px;
+  padding:10px;
+  box-shadow:
+    inset 0 0 18px rgba(0,0,0,.75),
+    0 0 0 1px rgba(0,255,204,.18);
+  transition: transform .08s ease, filter .2s ease;
+}
+
+.weaponCard:hover{
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+}
+
+/* Thumb has fixed px size (via CSS variable) */
+.weaponThumb{
+  width: var(--weaponThumbSize);
+  height: var(--weaponThumbSize);
+  flex: 0 0 var(--weaponThumbSize);
+
+  border-radius:10px;
+  overflow:hidden;
+}
+
+.weaponThumb img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+
+/* Price on the right */
+.weaponPrice{
+  margin-left:auto;
+  margin-top:0;
+  text-align:right;
+  font-size:13px;
+  letter-spacing:.12em;
+  color:var(--txt);
+}
+
+
+/* ===============================
+   POPUP — RANK LOST
+================================ */
+
+.rankPopup{
+  position:fixed;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background: rgba(0,0,0,.75);
+  backdrop-filter: blur(6px);
+  z-index:200;
+}
+
+.rankPopup.show{
+  display:flex;
+}
+
+.rankBox{
+  padding:26px 30px;
+  background: linear-gradient(180deg, rgba(0,0,0,.8), rgba(0,0,0,.5));
+  border-radius:18px;
+  box-shadow: 0 0 60px rgba(255,43,214,.35);
+  text-align:center;
+}
+
+.rankBox h2{
+  margin:0 0 10px;
+  color:var(--c3);
+  letter-spacing:.16em;
+}
+
+.rankBox p{
+  margin:0;
+  font-size:13px;
+  color:var(--muted);
+}
+
+/* ===============================
+   RESPONSIVE
+================================ */
+
+@media (max-width: 980px){
+  main{
+    grid-template-columns:1fr;
+  }
+
+  /* keep the same look, just avoid odd centering on narrow screens */
+  .weaponPanel{
+    width: 100%;
+    justify-self: stretch;
+  }
+}
+
+@media (max-width: 520px){
+  .targetPanel{
+    grid-template-columns:1fr;
+  }
+
+  .targetImage{
+    width:100%;
+    height: 200px; /* same as before */
+  }
+}
+
+/* ===============================
+   OVERRIDE: larger text in target info
+   (kept at the bottom so it wins in cascade)
+================================ */
+
+.targetData{
+  font-size: 15px; /* overall base */
+}
+
+.targetPanel .k{
+  font-size: 13px !important;
+}
+
+.targetPanel .v{
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+}
+
+
+/* ===============================
+   Controls the fake
+   film watermark in the corner
+================================ */
+
+/* CLICKABLE FILM WATERMARK AREA */
+.ghostmark-toggle {
+  position: fixed;
+  bottom: calc(10px + env(safe-area-inset-bottom));
+  right:  calc(14px + env(safe-area-inset-right));
+  padding: 26px 120px;
+  background: rgba(0, 0, 0, 0.01); /* 5% nearly-invisible box */
+  cursor: pointer;
+  z-index: 9999;
+}
+
+/* WATERMARK TEXT */
+.ghostmark-watermark {
+  font-family: monospace;
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgba(180, 255, 240, 0.85);
+
+  /* Glow effect */
+  text-shadow:
+    0 0 4px rgba(180,255,240,0.6),
+    0 0 10px rgba(120,220,200,0.35),
+    0 0 18px rgba(120,220,200,0.15);
+
+  pointer-events: none; /* clicks pass through to the invisible box */
+}
+
+/* HIDDEN STATE (click = hide) */
+body.ghostmark-hidden .ghostmark-watermark {
+  display: none;
+}
