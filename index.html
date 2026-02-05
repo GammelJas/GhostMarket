@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>GhostMarket — Login</title>
+  <link rel="stylesheet" href="login.css" />
+
+  <!-- Keep the same visible watermark style you already use (yellow + bigger) -->
+  <style>
+    .ghostmark-watermark {
+      position: fixed;
+      bottom: 12px;
+      right: 14px;
+      font-family: monospace;
+      font-size: 20px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgb(217, 255, 1);
+      pointer-events: none;
+      z-index: 9999;
+      text-align: right;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Film watermark (click area toggles visibility) -->
+  <div class="ghostmark-toggle" onclick="toggleGhostmark()">
+    <div class="ghostmark-watermark">
+      ©Haumann Studio<br>
+      FILM PROP — FAKE FAKE FAKE
+    </div>
+  </div>
+
+  <script>
+    function toggleGhostmark() {
+      document.body.classList.toggle("ghostmark-hidden");
+    }
+  </script>
+
+  <div class="wrap" id="wrap">
+
+    <pre class="logo" id="logo"
+data-text=' ██████╗ ██╗  ██╗ ██████╗ ███████╗████████╗███╗   ███╗ █████╗ ██████╗ ██╗  ██╗███████╗████████╗
+██╔════╝ ██║  ██║██╔═══██╗██╔════╝╚══██╔══╝████╗ ████║██╔══██╗██╔══██╗██║ ██╔╝██╔════╝╚══██╔══╝
+██║  ███╗███████║██║   ██║███████╗   ██║   ██╔████╔██║███████║██████╔╝█████╔╝ █████╗     ██║
+██║   ██║██╔══██║██║   ██║╚════██║   ██║   ██║╚██╔╝██║██╔══██║██╔══██╗██╔═██╗ ██╔══╝     ██║
+╚██████╔╝██║  ██║╚██████╔╝███████║   ██║   ██║ ╚═╝ ██║██║  ██║██║  ██║██║  ██╗███████╗   ██║
+ ╚═════╝ ╚═╝  ╚═╝ ╚═════╝ ╚══════╝   ╚═╝   ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝   ╚═╝'>
+ ██████╗ ██╗  ██╗ ██████╗ ███████╗████████╗███╗   ███╗ █████╗ ██████╗ ██╗  ██╗███████╗████████╗
+██╔════╝ ██║  ██║██╔═══██╗██╔════╝╚══██╔══╝████╗ ████║██╔══██╗██╔══██╗██║ ██╔╝██╔════╝╚══██╔══╝
+██║  ███╗███████║██║   ██║███████╗   ██║   ██╔████╔██║███████║██████╔╝█████╔╝ █████╗     ██║
+██║   ██║██╔══██║██║   ██║╚════██║   ██║   ██║╚██╔╝██║██╔══██║██╔══██╗██╔═██╗ ██╔══╝     ██║
+╚██████╔╝██║  ██║╚██████╔╝███████║   ██║   ██║ ╚═╝ ██║██║  ██║██║  ██║██║  ██╗███████╗   ██║
+ ╚═════╝ ╚═╝  ╚═╝ ╚═════╝ ╚══════╝   ╚═╝   ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝   ╚═╝
+    </pre>
+
+    <div class="panel">
+      <div class="stack">
+
+        <div class="login" id="login">
+          <input id="username" placeholder="Username" autocomplete="off" />
+          <input id="password" type="password" placeholder="Password" autocomplete="off" />
+          <button id="goBtn" type="button">GO ONLINE</button>
+        </div>
+
+        <div class="loader" id="loader">
+          <div class="loaderTop">
+            <div class="status" id="statusText"></div>
+            <div class="percent" id="percentText">0%</div>
+          </div>
+
+          <div class="bar">
+            <div class="barFill" id="barFill"></div>
+          </div>
+
+          <div class="console" id="console"></div>
+        </div>
+
+        <div class="finish" id="finish">
+          <h2 class="finishTitle">ONLINE</h2>
+          <p class="finishSub">SESSION ESTABLISHED</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const correctUser = "12345";
+    const correctPass = "123456";
+
+    const statusMessages = [
+      "INITIALIZING SECURE SESSION…",
+      "NEGOTIATING ENCRYPTED TUNNEL…",
+      "VALIDATING ACCESS TOKEN…",
+      "CHECKING SYSTEM INTEGRITY…",
+      "PARSING PACKET STREAM…",
+      "SANITIZING REQUEST HEADERS…",
+      "MOUNTING HIDDEN INDEX…",
+      "LOADING VENDOR REGISTRY…",
+      "VERIFYING SIGNATURES…",
+      "ROTATING SESSION KEYS…",
+      "SYNCING MARKET SHARDS…",
+      "FINALIZING ROUTE TABLE…",
+      "STABILIZING CONNECTION…"
+    ];
+
+    const consoleSeeds = [
+      ">> entropy pool synced",
+      ">> handshake: ok",
+      ">> auth: signature verified",
+      ">> net: tunnel stable",
+      ">> cache: pointers rebuilt",
+      ">> index: shards merged",
+      ">> io: stream locked",
+      ">> log: trace minimized",
+      ">> ui: render pipeline ready"
+    ];
+
+    let isBusy = false;
+
+    const loginBox  = document.getElementById("login");
+    const loaderBox = document.getElementById("loader");
+    const finishBox = document.getElementById("finish");
+
+    const userEl = document.getElementById("username");
+    const passEl = document.getElementById("password");
+    const goBtn  = document.getElementById("goBtn");
+
+    const statusEl   = document.getElementById("statusText");
+    const percentEl  = document.getElementById("percentText");
+    const barFillEl  = document.getElementById("barFill");
+    const consoleEl  = document.getElementById("console");
+
+    goBtn.addEventListener("click", login);
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") login();
+    });
+
+    function login(){
+      if (isBusy) return;
+
+      const u = (userEl.value || "").trim();
+      const p = (passEl.value || "").trim();
+
+      if (u === correctUser && p === correctPass) {
+        isBusy = true;
+        loginBox.classList.add("hidden");
+        loaderBox.classList.add("show");
+        startLoading();
+      } else {
+        alert("Access denied");
+      }
+    }
+
+    function startLoading(){
+      const targetMs = randInt(2000, 8000);
+      const start = performance.now();
+
+      let progress = 0;
+      let lines = [];
+
+      function pushLine(text, dim=false){
+        lines.push({text, dim});
+        if (lines.length > 9) lines.shift();
+        consoleEl.innerHTML = lines.map(l =>
+          `<span class="line ${l.dim ? "dim" : ""}">${escapeHtml(l.text)}</span>`
+        ).join("");
+      }
+
+      function tick(){
+        const now = performance.now();
+        const elapsed = now - start;
+
+        statusEl.textContent = pick(statusMessages);
+
+        const stall = (Math.random() < 0.20 && progress < 96);
+
+        const remaining = Math.max(0, targetMs - elapsed);
+        const stepsLeft = Math.max(1, Math.ceil(remaining / 170));
+        const minNeeded = (100 - progress) / stepsLeft;
+
+        if (!stall) {
+          let step = randFloat(0.8, 3.6);
+          step = Math.max(step, minNeeded);
+
+          if (Math.random() < 0.05 && progress > 12 && progress < 88) {
+            progress = Math.max(0, progress - randFloat(0.6, 2.4));
+            pushLine("!! retry: checksum mismatch — requeue", true);
+          }
+
+          progress = Math.min(100, progress + step);
+
+          if (Math.random() < 0.45) {
+            pushLine(pick(consoleSeeds));
+          }
+        } else {
+          pushLine(".. waiting: response timeout (stall)", true);
+        }
+
+        barFillEl.style.width = progress.toFixed(1) + "%";
+        percentEl.textContent = Math.floor(progress) + "%";
+
+        const delay = stall ? randInt(360, 900) : randInt(120, 240);
+
+        if (progress < 100) {
+          setTimeout(tick, delay);
+        } else {
+          done();
+        }
+      }
+
+      function done(){
+        statusEl.textContent = "CONNECTION ESTABLISHED.";
+        pushLine(">> status: ONLINE");
+        barFillEl.style.width = "100%";
+        percentEl.textContent = "100%";
+
+        setTimeout(() => {
+          // IMPORTANT: set a session id, otherwise main.html will redirect back to login
+          localStorage.setItem("gm_session", String(Date.now()));
+
+          // Fake restart (as described)
+          localStorage.setItem("gm_rank", "6");
+          localStorage.removeItem("gm_cooldown_until");
+          // gm_pending_target_id removed — no client-side target ids stored now
+
+          window.location.href = "main.html";
+        }, 550);
+      }
+
+      pushLine(">> boot: gm_core v3.1", true);
+      pushLine(">> init: sandbox locked", true);
+
+      tick();
+    }
+
+    function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+    function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+    function randFloat(min,max){ return Math.random()*(max-min)+min; }
+    function escapeHtml(str){
+      return String(str).replace(/[&<>"']/g, (m) => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+      }[m]));
+    }
+  </script>
+</body>
+</html>
