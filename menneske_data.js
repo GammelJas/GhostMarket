@@ -12,7 +12,7 @@ window.MENNESKER = [
     adresse: "Rosevej 12",
     by: "Nykøbing Mors",
     land: "Danmark",
-    billede: "img/menneske_data/mennesker (1).png",
+    billede: "img/menneske_data/mennesker (1).Png",
     note: "Bliver nemt aggressiv hvis han provokeres. Vær ikke sarkastisk overfor ham.",
     aktiv: true,
     hovdeperson: true
@@ -186,3 +186,4 @@ if (typeof window !== "undefined") {
   window["menneske_data"] = MENNESKER;
 }
 if (typeof module !== "undefined") module.exports = MENNESKER;
+
