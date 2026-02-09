@@ -125,12 +125,12 @@
       animation: neonFlow 3s ease-in-out infinite;
       padding: 16px;
       border-radius: 8px;
-      box-shadow: 
+      box-shadow:
         0 0 20px rgba(74, 240, 215, 0.6),
         0 0 40px rgba(0, 255, 204, 0.4),
         inset 0 0 20px rgba(74, 240, 215, 0.15);
       border: 2px solid rgba(0, 255, 204, 0.4);
-      text-shadow: 
+      text-shadow:
         0 0 10px rgba(74, 240, 215, 0.8),
         0 0 20px rgba(0, 255, 204, 0.5);
     }
@@ -138,7 +138,7 @@
     @keyframes neonFlow {
       0% {
         background-position: 0% 50%;
-        box-shadow: 
+        box-shadow:
           0 0 20px rgba(74, 240, 215, 0.6),
           0 0 40px rgba(0, 255, 204, 0.4),
           inset 0 0 20px rgba(74, 240, 215, 0.15),
@@ -147,7 +147,7 @@
       }
       50% {
         background-position: 100% 50%;
-        box-shadow: 
+        box-shadow:
           0 0 30px rgba(74, 240, 215, 0.8),
           0 0 60px rgba(0, 255, 204, 0.6),
           inset 0 0 30px rgba(74, 240, 215, 0.25),
@@ -156,7 +156,7 @@
       }
       100% {
         background-position: 0% 50%;
-        box-shadow: 
+        box-shadow:
           0 0 20px rgba(74, 240, 215, 0.6),
           0 0 40px rgba(0, 255, 204, 0.4),
           inset 0 0 20px rgba(74, 240, 215, 0.15),
@@ -260,9 +260,9 @@
     }
   </style>
 </head>
+
 <!-- ===============================
      GHOSTMARKET — LOGOUT OVERLAY
-     Paste into: main.html + weapons.html + show.html (right before </body>)
 ================================ -->
 <div id="gmLogoutOverlay" class="gm-logout-overlay" aria-hidden="true">
   <div class="gm-logout-wrap" role="dialog" aria-label="Logging out">
@@ -291,14 +291,12 @@
     </div>
   </div>
 </div>
+
 <script>
 /* ===============================
    GHOSTMARKET — LOGOUT SEQUENCE
-   Paste into: main.html + weapons.html + show.html
 ================================ */
 (function(){
-  function qs(sel){ return document.querySelector(sel); }
-
   function clearGhostMarketStorage(){
     try{
       const kill = [];
@@ -350,7 +348,6 @@
   function runLogoutSequence(redirectTo){
     const overlay = document.getElementById("gmLogoutOverlay");
     if (!overlay){
-      // fallback: if you forgot the HTML, just logout normally
       clearGhostMarketStorage();
       window.location.href = redirectTo || "index.html";
       return;
@@ -359,7 +356,6 @@
     const logEl = overlay.querySelector(".gm-logout-log");
     const statusEl = overlay.querySelector(".gm-logout-status");
 
-    // reset
     overlay.classList.remove("done");
     overlay.classList.add("show");
     overlay.setAttribute("aria-hidden","false");
@@ -367,7 +363,7 @@
     if (logEl) logEl.innerHTML = "";
     if (statusEl) statusEl.textContent = "SECURING SESSION…";
 
-    const totalMs = 4000 + Math.floor(Math.random() * 4001); // 4–8 seconds
+    const totalMs = 4000 + Math.floor(Math.random() * 4001);
     const start = Date.now();
 
     const lines = [
@@ -382,7 +378,7 @@
       ">> STATUS: OFFLINE"
     ];
 
-    const jitterChar = () => 18 + Math.floor(Math.random() * 34); // per-char speed
+    const jitterChar = () => 18 + Math.floor(Math.random() * 34);
     const jitterGap  = () => 140 + Math.floor(Math.random() * 260);
 
     let idx = 0;
@@ -399,10 +395,7 @@
 
     function next(){
       if (!logEl) return finish();
-
-      if (idx >= lines.length){
-        return finish();
-      }
+      if (idx >= lines.length) return finish();
 
       const text = lines[idx++];
       typeLine(logEl, text, jitterChar(), () => setTimeout(next, jitterGap()));
@@ -410,7 +403,6 @@
 
     next();
 
-    // hard-stop so it always completes within 4–8 sec
     setTimeout(() => {
       if (overlay.classList.contains("show")) finish();
     }, Math.max(0, totalMs - (Date.now() - start)));
@@ -430,8 +422,6 @@
   }
 
   document.addEventListener("DOMContentLoaded", hookLogoutLinks);
-
-  // optional manual trigger: window.gmLogout()
   window.gmLogout = () => runLogoutSequence("index.html");
 })();
 </script>
@@ -454,12 +444,10 @@
       const toggle = document.querySelector(".ghostmark-toggle");
       if (!toggle) return;
 
-      // Restore state on load
       if (localStorage.getItem(KEY) === "true") {
         document.body.classList.add("ghostmark-hidden");
       }
 
-      // Click to toggle + persist
       toggle.addEventListener("click", () => {
         const hidden = document.body.classList.toggle("ghostmark-hidden");
         localStorage.setItem(KEY, hidden ? "true" : "false");
@@ -627,7 +615,6 @@
         // ====== data loaders (robust)
         function getPeople(){
           const candidates = [
-            // your main data (best)
             window.mennesker,
             window["mennesker"],
             window.people,
@@ -636,8 +623,6 @@
             window["personer"],
             window.targets,
             window["targets"],
-
-            // IMPORTANT: your menneske_data.js defines window.MENNESKER first
             window.MENNESKER,
             window["MENNESKER"]
           ];
@@ -645,7 +630,6 @@
           const found = candidates.find(v => Array.isArray(v) && v.length);
           if (found) return found;
 
-          // fallback (page still loads, but you can see it's wrong)
           return [
             { id: 1, navn: "MISSING menneske_data.js", alder: "-", beskrivelse: "Your menneske_data.js was not found or did not load correctly.", billede: PLACEHOLDER_IMG }
           ];
@@ -735,8 +719,33 @@
           spinCounter: "gm_spin_counter",
           lastSessionSeen: "gm_last_session_seen",
           weaponsSession: "gm_weapons_session",
-          weaponsPick: "gm_weapons_pick_ids"
+          weaponsPick: "gm_weapons_pick_ids",
+
+          // ✅ PERSIST ACCEPTED TARGET (does NOT start with gm_ so logout wipe won't remove it)
+          acceptedTarget: "ghostmarket_accepted_target_v1"
         };
+
+        function saveAcceptedTarget(person){
+          try{
+            if (!person) return;
+            // store a snapshot so it renders even if data changes
+            LS.setItem(K.acceptedTarget, JSON.stringify(person));
+          }catch(e){}
+        }
+
+        function loadAcceptedTarget(){
+          try{
+            const raw = LS.getItem(K.acceptedTarget);
+            if (!raw) return null;
+            const obj = JSON.parse(raw);
+            if (!obj || typeof obj !== "object") return null;
+            return obj;
+          }catch(e){ return null; }
+        }
+
+        function clearAcceptedTarget(){
+          try{ LS.removeItem(K.acceptedTarget); }catch(e){}
+        }
 
         function loadRank(){
           const r = Number(LS.getItem(K.rank));
@@ -799,7 +808,6 @@
             rows.push(`<div class="k">${safeText(k)}</div><div class="v">${safeText(v)}</div>`);
           };
 
-          // BOUNTY - FIRST (most prominent)
           if (person && person.dusør) {
             rows.push(`<div class="k bountyLabel">💰 BOUNTY REWARD</div><div class="v bountyValue">${safeText(person.dusør)} DKK</div>`);
           }
@@ -807,14 +815,12 @@
           if (statusLine) push("Status", statusLine);
           if (person){
             push("Name", person.navn);
-
             push("Age", person.alder);
             push("City", person.by ?? person.lokation ?? person.sted);
             push("Job", person.job ?? person.erhverv ?? person.stilling);
             push("Rank req", person.rankReq ?? person.rank);
             push("Note", person.note ?? person.notat);
             push("Description", person.beskrivelse ?? person.desc ?? person.description);
-
             push("Reason", person.reason);
             push("Wanted", person.wanted);
           }
@@ -853,7 +859,6 @@
           const c = Number(LS.getItem(K.spinCounter) || "0") + 1;
           LS.setItem(K.spinCounter, String(c));
 
-          // every other spin = ID 1 (spin 1,3,5,...)
           const forceId1 = (c % 2 === 1);
 
           let chosen = null;
@@ -873,6 +878,9 @@
           if (isCooldownActive()) return;
           if (state.pendingDecision) return;
 
+          // ✅ As requested: once you spin again, forget the previously accepted target
+          clearAcceptedTarget();
+
           if (!state.people.length){
             setTargetView(null, "ERROR: No people loaded.");
             return;
@@ -885,7 +893,6 @@
           const finalTarget = chooseFinalTarget();
           state.currentTarget = finalTarget;
 
-          // animation: fast -> slower
           const steps = 22;
           let i = 0;
           let delay = 2;
@@ -896,7 +903,6 @@
             const randomPick = state.people[Math.floor(Math.random() * state.people.length)];
             nameTextEl.textContent = randomPick?.navn ?? "—";
 
-            // slowdown curve
             delay += Math.floor(i * 1.8);
 
             if (i < steps){
@@ -920,6 +926,9 @@
           if (!state.pendingDecision) return;
           const t = state.currentTarget;
           if (!t) return;
+
+          // ✅ store accepted target permanently (until next spin)
+          saveAcceptedTarget(t);
 
           state.cooldownUntil = Date.now() + THIRTY_DAYS_MS;
           saveCooldown();
@@ -1018,7 +1027,7 @@
 
             state.rank = 6;
             saveRank();
-            clearCooldown();
+            clearCooldown(); // ✅ timer resets like before
           }
         }
 
@@ -1053,8 +1062,28 @@
           loadRank();
           loadCooldown();
 
-          nameTextEl.textContent = "—";
-          setTargetView(null, "Ready");
+          // ✅ Restore accepted target on load (even after reload/login),
+          // until the user spins again.
+          const remembered = loadAcceptedTarget();
+          if (remembered){
+            // If we can match by id in the current people list, use that (fresh data)
+            const match = state.people.find(p => Number(p.id) === Number(remembered.id));
+            const t = match || remembered;
+
+            state.currentTarget = t;
+
+            nameTextEl.textContent = t?.navn ?? "—";
+
+            const statusLine = isCooldownActive()
+              ? "TARGET ACCEPTED — 30-DAY LOCK"
+              : "TARGET ACCEPTED — STORED (SPIN TO OVERRIDE)";
+
+            setTargetView(t, statusLine);
+          } else {
+            nameTextEl.textContent = "—";
+            setTargetView(null, "Ready");
+          }
+
           setDecisionGate(false);
 
           const picks = loadOrPickWeaponsForSession();
@@ -1086,11 +1115,170 @@
   </div>
 
 <style>
-  /* Hide watermark when toggled off */
   body.ghostmark-hidden .ghostmark-watermark {
     display: none;
   }
 </style>
+
+<!-- ===============================
+     GHOSTMARKET — TARGET ACCEPT OVERLAY (UPDATED)
+================================ -->
+
+<style>
+  .gm-accept-overlay{
+    position: fixed;
+    inset: 0;
+    z-index: 12000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,.88);
+    backdrop-filter: blur(6px);
+  }
+
+  .gm-accept-overlay.show{
+    display: flex;
+  }
+
+  .gm-accept-box{
+    width: min(720px, 92vw);
+    padding: 36px 28px 30px;
+    background: linear-gradient(180deg, rgba(0,0,0,.88), rgba(0,0,0,.55));
+    border-radius: 20px;
+    box-shadow:
+      0 0 80px rgba(0,0,0,.85),
+      0 0 0 1px rgba(255,80,80,.35);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .gm-accept-box::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background: url("img/skull.png") center / 55% no-repeat;
+    opacity:.06;
+    pointer-events:none;
+    filter: blur(.4px);
+  }
+
+  .gm-accept-box::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+      repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,.025),
+        rgba(255,255,255,.025) 1px,
+        rgba(0,0,0,0) 4px,
+        rgba(0,0,0,0) 7px
+      );
+    pointer-events:none;
+    opacity:.45;
+  }
+
+  .gm-accept-title{
+    color: rgb(255,60,60);
+    font-size: clamp(20px, 4vw, 28px);
+    font-weight: 900;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    margin-bottom: 45px;
+    text-shadow:
+      0 0 12px rgba(255,60,60,.65),
+      0 0 26px rgba(255,60,60,.35);
+    position: relative;
+    z-index: 1;
+  }
+
+  .gm-accept-text{
+    color: rgba(255,120,120,.92);
+    font-size: 14px;
+    line-height: 1.7;
+    letter-spacing: .06em;
+    max-width: 60ch;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .gm-accept-skull{
+    margin: 18px 0 26px;
+    font-size: 46px;
+    text-align: center;
+    animation: gmSkullBlink 2s steps(1) infinite;
+    text-shadow:
+      0 0 12px rgba(255,60,60,.65),
+      0 0 28px rgba(255,60,60,.35);
+    position: relative;
+    z-index: 1;
+  }
+
+  @keyframes gmSkullBlink{
+    0%,45%{ opacity:1; }
+    50%,100%{ opacity:.15; }
+  }
+
+  .gm-final-accept{
+    padding: 14px 26px;
+    font-size: 13px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: none;
+    border-radius: 14px;
+    color: #1a0000;
+    background: linear-gradient(90deg, rgb(255,70,70), rgb(180,0,0));
+    box-shadow:
+      0 0 0 1px rgba(255,80,80,.45),
+      0 0 30px rgba(255,0,0,.35);
+    transition: transform .08s ease, filter .2s ease;
+    position: relative;
+    z-index: 1;
+  }
+
+  .gm-final-accept:hover{ filter: brightness(1.1); }
+  .gm-final-accept:active{ transform: translateY(1px); }
+</style>
+
+<div class="gm-accept-overlay" id="gmAcceptOverlay" aria-hidden="true">
+  <div class="gm-accept-box" role="dialog">
+    <div class="gm-accept-title">TARGET ACCEPTED</div>
+
+    <div class="gm-accept-text">
+      Finish the job, and remember;<br>
+      <strong>Backing out will have consequences</strong>
+    </div>
+
+    <div class="gm-accept-skull">💀</div>
+
+    <button class="gm-final-accept" id="gmFinalAcceptBtn">
+      Accept
+    </button>
+  </div>
+</div>
+
+<script>
+(function(){
+  const overlay = document.getElementById("gmAcceptOverlay");
+  const finalBtn = document.getElementById("gmFinalAcceptBtn");
+  const acceptBtn = document.getElementById("acceptBtn");
+
+  if (!overlay || !acceptBtn) return;
+
+  acceptBtn.addEventListener("click", () => {
+    overlay.classList.add("show");
+    overlay.setAttribute("aria-hidden","false");
+  });
+
+  finalBtn.addEventListener("click", () => {
+    overlay.classList.remove("show");
+    overlay.setAttribute("aria-hidden","true");
+  });
+})();
+</script>
 
 </body>
 </html>
